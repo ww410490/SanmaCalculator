@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <title>三麻點數計算機 - 親家選擇</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 20px;
+      background-color: #111;
+      color: white;
+	  font-size: larger;
+    }
+    #tableLayout {
+      display: grid;
+      grid-template-areas: 
+        ".    east    ."
+        "west center south";
+      grid-template-columns: 1fr 230px 1fr;
+      grid-template-rows: 230px 230px;
+      gap: 10px;
+      margin-top: 30px;
+    }
+    .playerBox {
+      border: 2px solid #ccc;
+      padding: 10px;
+      background-color: #222;
+      border-radius: 10px;
+    }
+	
+	.playerBox.parent {
+		border: 2px solid #ffcc00;
+		background-color: #333;
+		box-shadow: 0 0 10px #ffcc00;
+	}
+
+
+    #east { grid-area: east; }
+    #south { grid-area: south; }
+    #west { grid-area: west; }
+    #center {
+      grid-area: center;
+      border: none;
+      background: none;
+	  text-align: left;
+    }
+    input, select, button {
+      margin: 5px;
+      padding: 5px;
+      font-size: 14px;
+    }
+    button {
+      background-color: #444;
+      color: white;
+      border: none;
+      cursor: pointer;
+	  width: 90%;
+    }
+    button:hover {
+      background-color: #666;
+    }
+	
+	.startScore {
+		display: none;
+	}
+
+	.richiIcon {
+		display: inline-block;
+		margin-left: 5px;
+		font-size: 18px;
+		color: #ff4444;
+	}
+	
+	.richi-stick {
+		display: inline-block;
+		width: 150px;
+		height: 15px;
+		background-color: white;
+		border-radius: 3px;
+		margin-left: 6px;
+		position: relative;
+		box-shadow: 0 0 2px black;
+	}
+	
+	.richi-stick::after {
+		content: '';
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		width: 8px;
+		height: 8px;
+		background-color: red;
+		border-radius: 50%;
+	}
+
+
+
+  </style>
+</head>
+<body>
+  <h1>三麻點數計算機</h1>
+
+  <div>
+    <label class="startScore">東家起始分數: <input type="number" id="p0" value="35000"></label><br>
+	<label class="startScore">南家起始分數: <input type="number" id="p1" value="35000"></label><br>
+	<label class="startScore">西家起始分數: <input type="number" id="p2" value="35000"></label><br>
+
+    <button onclick="initGame()">開始遊戲</button>
+    <button onclick="resetGame()">重設遊戲</button>
+  </div>
+
+  <div id="gameArea" style="display:none;">
+    <h3 id="roundInfo">東1局</h3>
+    <h3 id="本場"></h3>
+    <h3 id="供托"></h3>
+    <div id="tableLayout">
+      <div id="east" class="playerBox">
+        <div id="player0"></div>
+        <label><input type="radio" name="parent" value="0" onchange="setParent(0)"> 親家</label><br>
+        <label><input type="checkbox" id="tenpai0"> 流局聽牌</label><br>
+        <label><input type="checkbox" id="richi0" onchange="setRichi(0)"> 立直</label>
+		<span id="richiIcon0" class="richiIcon"></span>
+      </div>
+      <div id="south" class="playerBox">
+        <div id="player1"></div>
+        <label><input type="radio" name="parent" value="1" onchange="setParent(1)"> 親家</label><br>
+        <label><input type="checkbox" id="tenpai1"> 流局聽牌</label><br>
+        <label><input type="checkbox" id="richi1" onchange="setRichi(1)"> 立直</label>
+		<span id="richiIcon1" class="richiIcon"></span>
+      </div>
+      <div id="west" class="playerBox">
+        <div id="player2"></div>
+        <label><input type="radio" name="parent" value="2" onchange="setParent(2)"> 親家</label><br>
+        <label><input type="checkbox" id="tenpai2"> 流局聽牌</label><br>
+        <label><input type="checkbox" id="richi2" onchange="setRichi(2)"> 立直</label>
+		<span id="richiIcon2" class="richiIcon"></span>
+      </div>
+      <div id="center">
+        <label>得點玩家：
+          <select id="winner" onchange="updateRonOptions()">
+            <option value="0">東家</option>
+            <option value="1">南家</option>
+            <option value="2">西家</option>
+          </select>
+        </label><br>
+        <label>和牌方式：
+          <select id="winType" onchange="toggleRonPayer()">
+            <option value="tsumo">自摸</option>
+            <option value="ron">榮和</option>
+            <option value="none">無和牌</option>
+          </select>
+        </label><br>
+        <div id="ronPayerDiv" style="display: none;">
+          <label>放銃玩家：
+            <select id="ronPayer">
+              <option value="0">東家</option>
+              <option value="1">南家</option>
+              <option value="2">西家</option>
+            </select>
+          </label><br>
+        </div>
+        <label>番數：
+			<select id="han">
+				<option value="1">1翻</option>
+				<option value="2">2翻</option>
+				<option value="3">3翻</option>
+				<option value="4">4翻</option>
+				<option value="5">5翻</option>
+				<option value="6">6翻</option>
+				<option value="7">7翻</option>
+				<option value="8">8翻</option>
+				<option value="9">9翻</option>
+				<option value="10">10翻</option>
+				<option value="11">11翻</option>
+				<option value="12">12翻</option>
+				<option value="13">13翻</option>
+			</select>
+		</label><br>
+			
+		<label>符數：
+			<select id="fu">
+				<option value="20">20符</option>
+				<option value="25">25符</option>
+				<option value="30">30符</option>
+				<option value="40">40符</option>
+				<option value="50">50符</option>
+				<option value="60">60符</option>
+				<option value="70">70符</option>
+				<option value="80">80符</option>
+				<option value="90">90符</option>
+				<option value="100">100符</option>
+				<option value="110">110符</option>
+			</select>
+		</label><br>
+
+        <button onclick="calculate()">計算</button>
+      </div>
+    </div>
+
+    <h3>結果</h3>
+    <div id="result"></div>
+  </div>
+
+  <script>
+    let scores = [25000, 25000, 25000];
+    let parentIndex = 0;
+    let round = 0;
+    const rounds = ["東1局", "東2局", "東3局", "南1局", "南2局", "南3局"];
+	var 本場數 = 0;
+	var 供托數 = 0;
+
+    function initGame() {
+      scores[0] = parseInt(document.getElementById("p0").value);
+      scores[1] = parseInt(document.getElementById("p1").value);
+      scores[2] = parseInt(document.getElementById("p2").value);
+      round = 0;
+      parentIndex = 0;
+      document.querySelector(`input[name='parent'][value='${parentIndex}']`).checked = true;
+      updateScores();
+      updateRound();
+      document.getElementById("gameArea").style.display = "block";
+      updateRonOptions();
+	  
+	  setParent(0);
+	  
+    }
+
+    function resetGame() {
+      document.getElementById("p0").value = 35000;
+      document.getElementById("p1").value = 35000;
+      document.getElementById("p2").value = 35000;
+      resetTenpaiRichi();
+      parentIndex = 0;
+      round = 0;
+      document.getElementById("gameArea").style.display = "none";
+      document.getElementById("result").innerHTML = "";
+	  
+	  本場數 = 0;
+	  供托數 = 0;
+	  
+	  initGame();
+    }
+
+    function updateScores() {
+      for (let i = 0; i < 3; i++) {
+        document.getElementById(`player${i}`).innerHTML = `${["東家", "南家", "西家"][i]}<br>分數: ${scores[i]}`;
+      }
+	  document.getElementById("供托").textContent = `供托: ${供托數}`;
+    }
+
+    function updateRound() {
+      document.getElementById("roundInfo").textContent = rounds[round];
+      document.getElementById("本場").textContent = `${本場數}本場`;
+    }
+
+    function toggleRonPayer() {
+      const winType = document.getElementById("winType").value;
+      document.getElementById("ronPayerDiv").style.display = (winType === "ron") ? "block" : "none";
+    }
+
+    function updateRonOptions() {
+      const winner = parseInt(document.getElementById("winner").value);
+      const ronPayer = document.getElementById("ronPayer");
+      Array.from(ronPayer.options).forEach(opt => {
+        opt.disabled = (parseInt(opt.value) === winner);
+      });
+      if (ronPayer.value == winner) ronPayer.value = [0, 1, 2].find(i => i !== winner).toString();
+    }
+
+    function getSeatName(i) {
+      return ["東家", "南家", "西家"][i];
+    }
+
+    function setParent(index) {
+		parentIndex = index;
+		document.querySelector(`input[name='parent'][value='${parentIndex}']`).checked = true;
+		updateScores();
+	  
+		// 清除所有高亮
+		for (let i = 0; i < 3; i++) {
+			document.getElementById(getSeatId(i)).classList.remove("parent");
+		}
+		
+		// 加上親家高亮
+		document.getElementById(getSeatId(index)).classList.add("parent");
+    }
+	
+	function getSeatId(index) {
+		return ["east", "south", "west"][index];
+	}
+	
+	function setRichi(index) {
+		const icon = document.getElementById(`richiIcon${index}`);
+		
+      if (document.querySelector(`input[id='richi${index}']`).checked){
+		供托數 += 1000;
+		scores[index] -= 1000;
+		updateScores();
+		
+		icon.innerHTML = '<div class="richi-stick"></div>';
+
+		
+	  }
+	  else{
+		供托數 -= 1000;
+		scores[index] += 1000;
+		updateScores();
+		icon.innerHTML = "";
+	  }
+	  
+	  
+    }
+	
+	function resetTenpaiRichi(){
+		document.getElementById("tenpai0").checked = false;
+		document.getElementById("tenpai1").checked = false;
+		document.getElementById("tenpai2").checked = false;
+		
+		document.getElementById("richi0").checked = false;
+		document.getElementById("richi1").checked = false;
+		document.getElementById("richi2").checked = false;
+		
+		document.getElementById("richiIcon0").textContent = "";
+		document.getElementById("richiIcon1").textContent = "";
+		document.getElementById("richiIcon2").textContent = "";
+	
+	}
+	
+	function calculatePoints(han, fu) {
+      if (han >= 5) {
+        if (han >= 13) return 8000;
+        if (han >= 11) return 6000;
+        if (han >= 8) return 4000;
+        if (han >= 6) return 3000;
+        return 2000;
+      }
+      let base = fu * Math.pow(2, 2 + han);
+      return Math.min(base, 2000);
+    }
+	
+
+    function calculate() {
+	  const winner = parseInt(document.getElementById("winner").value);
+      const han = parseInt(document.getElementById("han").value);
+      const fu = parseInt(document.getElementById("fu").value);
+      const winType = document.getElementById("winType").value;
+      const ronPayer = parseInt(document.getElementById("ronPayer").value);
+
+      let rotateParent = true;
+      let resultText = "";
+	  
+	  
+      if (winType === "none") {
+        const tenpai = [0, 1, 2].filter(i => document.getElementById(`tenpai${i}`).checked);
+        let result = "流局";
+        if (tenpai.length > 0) {
+          const noten = [0, 1, 2].filter(i => !document.getElementById(`tenpai${i}`).checked);
+          const points = 2000 / tenpai.length;
+          for (let i of tenpai) scores[i] += points;
+          for (let i of noten) scores[i] -= points * (tenpai.length / noten.length);
+          result += `：${tenpai.map(getSeatName).join("、")} 聽牌，聽牌者分得點棒`;
+        } else {
+          result += "：無人聽牌";
+        }
+        parentIndex = document.getElementById(`tenpai${parentIndex}`).checked ? parentIndex : (parentIndex + 1) % 3;
+        
+        setParent(parentIndex);
+		
+		if (parentIndex in tenpai)
+		{
+			本場數 += 1; 
+		}
+		else{
+			round = Math.min(round + 1, rounds.length - 1);
+		}
+        updateScores();
+        updateRound();
+        document.getElementById("result").innerHTML = result;
+		
+		resetTenpaiRichi();
+        return;
+      }
+      // existing logic continues...
+	  else {
+        const base = calculatePoints(han, fu);
+        const isParent = (winner === parentIndex);
+        const multiplier = isParent ? 1.5 : 1;
+
+        resultText += `${han}翻 ${fu}符 ${本場數}本場`;
+        if (isParent) resultText += `（親家×1.5）`;
+        resultText += "<br>";
+		
+        if (winType === "ron") 
+		{
+          const ronPoints = Math.ceil(base * 4 * multiplier / 100) * 100 + 本場數*200 + 供托數;
+          scores[winner] += ronPoints;
+          scores[ronPayer] -= ronPoints;
+          resultText += `${getSeatName(winner)}榮和 ${getSeatName(ronPayer)}，收入 ${ronPoints} 點 + 本場 ${本場數*200} 點 + 供托 ${供托數} 點`;
+		  
+		  供托數 = 0;
+        } 
+		if (winType === "tsumo") 
+		{
+			//如果是親家自摸，子家要扣除點數 base * 1.33
+			if (winner === parentIndex){
+				const payers = [0, 1, 2].filter(i => i !== winner);
+				const tsumo1 = Math.ceil(base * 1.33 * multiplier / 100) * 100 + 本場數*100;
+				const tsumo2 = Math.ceil(base * 1.33 * multiplier / 100) * 100 + 本場數*100;
+				scores[winner] += tsumo1 + tsumo2 + 供托數;
+				scores[payers[0]] -= tsumo1;
+				scores[payers[1]] -= tsumo2;
+				resultText += `${getSeatName(winner)}自摸，${getSeatName(payers[0])}支付 ${tsumo1}，${getSeatName(payers[1])}支付 ${tsumo2}，供托 ${供托數} 點`;
+			}
+			//如果是子家自摸，親家要扣除點數 base * 2, 另一個子家要扣除點數 base * 1
+			if (winner != parentIndex){
+				const payers = [0, 1, 2].filter(i => i !== winner);
+				const tsumo1 = Math.ceil(base * 2 * multiplier / 100) * 100 + 本場數*100;
+				const tsumo2 = Math.ceil(base * 1 * multiplier / 100) * 100 + 本場數*100;
+				scores[winner] += tsumo1 + tsumo2 + 供托數;
+				scores[parentIndex] -= tsumo1;
+				scores[3 - winner - parentIndex] -= tsumo2;
+				resultText += `${getSeatName(winner)}自摸，${getSeatName(payers[0])}支付 ${tsumo1}，${getSeatName(payers[1])}支付 ${tsumo2}，供托 ${供托數} 點`;
+			}
+			供托數 = 0;
+        }
+		
+		if (isParent) 本場數 += 1;
+        if (isParent) rotateParent = false;
+      }
+	  
+	  if (rotateParent) {
+        parentIndex = (parentIndex + 1) % 3;
+        round = Math.min(round + 1, rounds.length - 1);
+        resultText += `<br>親家輪轉為 ${getSeatName(parentIndex)}`;
+		本場數 = 0;
+      }
+
+      setParent(parentIndex);
+      updateScores();
+      updateRound();
+      document.getElementById("result").innerHTML = resultText;
+	  
+	  resetTenpaiRichi();
+	  
+    }
+	
+	initGame();
+  </script>
+</body>
+</html>
