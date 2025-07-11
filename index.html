@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>三麻點數計算機 - 親家選擇</title>
+    <title>三麻點數計算機</title>
     <style>
         body {
             font-family: sans-serif;
@@ -141,7 +141,7 @@
         }
 
         #result {
-            font-size: 24px;
+            font-size: 20px;
         }
 
         input[type="checkbox"] {
@@ -277,7 +277,7 @@
     </div>
 
     <script>
-        let scores = [25000, 25000, 25000];
+        let scores = [35000, 35000, 35000];
         let parentIndex = 0;
         let round = 0;
         const rounds = ["東1局", "東2局", "東3局", "南1局", "南2局", "南3局", "西1局", "西2局", "西3局"];
@@ -304,6 +304,7 @@
             document.getElementById("p0").value = 35000;
             document.getElementById("p1").value = 35000;
             document.getElementById("p2").value = 35000;
+            scores = [35000, 35000, 35000];
             resetTenpaiRichi();
             parentIndex = 0;
             round = 0;
@@ -476,10 +477,11 @@
                 resultText += "<br>";
 
                 if (winType === "ron") {
-                    const ronPoints = Math.ceil(base * 4 * multiplier / 100) * 100 + 本場數 * 200 + 供托數;
-                    scores[winner] += ronPoints;
+                    const ronPoints = Math.ceil(base * 4 * multiplier / 100) * 100 ;
+                    scores[winner] += ronPoints + 本場數 * 200 + 供托數;
                     scores[ronPayer] -= ronPoints;
-                    resultText += `${getSeatName(winner)}榮和 ${getSeatName(ronPayer)}，收入 ${ronPoints} 點 + 本場 ${本場數 * 200} 點 + 供托 ${供托數} 點`;
+                    resultText += `${getSeatName(winner)}榮和 ${getSeatName(ronPayer)}，<br>
+                    收入 ${ronPoints} 點 + 本場 ${本場數 * 200} 點 + 供托 ${供托數} 點`;
 
                     供托數 = 0;
                 }
@@ -487,22 +489,28 @@
                     //如果是親家自摸，子家要扣除點數 base * 1.33
                     if (winner === parentIndex) {
                         const payers = [0, 1, 2].filter(i => i !== winner);
-                        const tsumo1 = Math.ceil(base * 1.33 * multiplier / 100) * 100 + 本場數 * 100;
-                        const tsumo2 = Math.ceil(base * 1.33 * multiplier / 100) * 100 + 本場數 * 100;
-                        scores[winner] += tsumo1 + tsumo2 + 供托數;
-                        scores[payers[0]] -= tsumo1;
-                        scores[payers[1]] -= tsumo2;
-                        resultText += `${getSeatName(winner)}自摸，${getSeatName(payers[0])}支付 ${tsumo1}，${getSeatName(payers[1])}支付 ${tsumo2}，供托 ${供托數} 點`;
+                        const tsumo1 = Math.ceil(base * 1.33 * multiplier / 100) * 100;
+                        const tsumo2 = Math.ceil(base * 1.33 * multiplier / 100) * 100;
+                        scores[winner] += tsumo1 + tsumo2 + 本場數 * 200 + 供托數;
+                        scores[payers[0]] -= tsumo1 + 本場數 * 100;
+                        scores[payers[1]] -= tsumo2 + 本場數 * 100;
+                        resultText += `${getSeatName(winner)}自摸，<br>
+                            ${getSeatName(payers[0])}支付 ${tsumo1} + 本場 ${本場數 * 100} 點，<br>
+                            ${getSeatName(payers[1])}支付 ${tsumo2} + 本場 ${本場數 * 100} 點，<br>
+                            供托 ${供托數} 點`;
                     }
                     //如果是子家自摸，親家要扣除點數 base * 2, 另一個子家要扣除點數 base * 1
                     if (winner != parentIndex) {
                         const payers = [0, 1, 2].filter(i => i !== winner);
-                        const tsumo1 = Math.ceil(base * 2 * multiplier / 100) * 100 + 本場數 * 100;
-                        const tsumo2 = Math.ceil(base * 1 * multiplier / 100) * 100 + 本場數 * 100;
-                        scores[winner] += tsumo1 + tsumo2 + 供托數;
-                        scores[parentIndex] -= tsumo1;
-                        scores[3 - winner - parentIndex] -= tsumo2;
-                        resultText += `${getSeatName(winner)}自摸，${getSeatName(payers[0])}支付 ${tsumo1}，${getSeatName(payers[1])}支付 ${tsumo2}，供托 ${供托數} 點`;
+                        const tsumo1 = Math.ceil(base * 2 * multiplier / 100) * 100;
+                        const tsumo2 = Math.ceil(base * 1 * multiplier / 100) * 100;
+                        scores[winner] += tsumo1 + tsumo2 + 本場數 * 200 + 供托數;
+                        scores[parentIndex] -= tsumo1 + 本場數 * 100;
+                        scores[3 - winner - parentIndex] -= tsumo2 + 本場數 * 100;
+                        resultText += `${getSeatName(winner)}自摸，<br>
+                            ${getSeatName(payers[0])}支付 ${tsumo1} + 本場 ${本場數 * 100} 點，<br>
+                            ${getSeatName(payers[1])}支付 ${tsumo2} + 本場 ${本場數 * 100} 點，<br>
+                            供托 ${供托數} 點`;
                     }
                     供托數 = 0;
                 }
