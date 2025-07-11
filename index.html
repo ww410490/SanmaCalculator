@@ -151,7 +151,7 @@
 	<label class="startScore">南家起始分數: <input type="number" id="p1" value="35000"></label>
 	<label class="startScore">西家起始分數: <input type="number" id="p2" value="35000"></label>
 
-    <button class="startBtn" onclick="initGame()">開始遊戲</button>
+    <!-- <button class="startBtn" onclick="initGame()">開始遊戲</button> -->
     <button class="startBtn" onclick="resetGame()">重設遊戲</button>
   </div>
 
@@ -409,26 +409,31 @@
           const points = 2000 / tenpai.length;
           for (let i of tenpai) scores[i] += points;
           for (let i of noten) scores[i] -= points * (tenpai.length / noten.length);
-          result += `：${tenpai.map(getSeatName).join("、")} 聽牌，聽牌者分得點棒`;
+          result += `：${tenpai.map(getSeatName).join("、")} 聽牌`;
         } else {
           result += "：無人聽牌";
         }
-        parentIndex = document.getElementById(`tenpai${parentIndex}`).checked ? parentIndex : (parentIndex + 1) % 3;
-        
-        setParent(parentIndex);
 		
-		if (parentIndex in tenpai)
-		{
+		if (tenpai.includes(parentIndex)) 
+		{	
+			//親家聽牌
 			本場數 += 1; 
 		}
 		else{
+			//親家沒聽
 			round = Math.min(round + 1, rounds.length - 1);
+			本場數 += 1; 
+			parentIndex = document.getElementById(`tenpai${parentIndex}`).checked ? parentIndex : (parentIndex + 1) % 3;
+        
+			setParent(parentIndex);
 		}
         updateScores();
         updateRound();
         document.getElementById("result").innerHTML = result;
 		
 		resetTenpaiRichi();
+		
+		
         return;
       }
       // existing logic continues...
