@@ -10,23 +10,24 @@
       padding: 20px;
       background-color: #111;
       color: white;
-	  font-size: larger;
+	  <!-- font-size: 40px; -->
     }
     #tableLayout {
       display: grid;
       grid-template-areas: 
         ".    east    ."
         "west center south";
-      grid-template-columns: 1fr 230px 1fr;
-      grid-template-rows: 230px 230px;
+      grid-template-columns: 1fr 33% 1fr;
+      grid-template-rows: 380px 420px;
       gap: 10px;
       margin-top: 30px;
     }
     .playerBox {
       border: 2px solid #ccc;
-      padding: 10px;
+      padding: 20px;
       background-color: #222;
       border-radius: 10px;
+	  font-size: 40px;
     }
 	
 	.playerBox.parent {
@@ -43,19 +44,28 @@
       grid-area: center;
       border: none;
       background: none;
-	  text-align: left;
+	  <!-- text-align: left; -->
     }
     input, select, button {
       margin: 5px;
       padding: 5px;
-      font-size: 14px;
+      font-size: xxx-large;
     }
+	
+	select {
+		width: 90%;
+		text-align: center;
+	}
+	
+	option{
+		font-size: 16px;
+	}
+	
     button {
       background-color: #444;
       color: white;
       border: none;
       cursor: pointer;
-	  width: 90%;
     }
     button:hover {
       background-color: #666;
@@ -63,6 +73,16 @@
 	
 	.startScore {
 		display: none;
+	}
+	
+	.startBtn {
+		height: 100px;
+		width: 250px;
+		font-size: xxx-large;
+	}
+	
+	.calcBtn{
+		width: 90%;
 	}
 
 	.richiIcon {
@@ -74,8 +94,8 @@
 	
 	.richi-stick {
 		display: inline-block;
-		width: 150px;
-		height: 15px;
+		width: 200px;
+		height: 20px;
 		background-color: white;
 		border-radius: 3px;
 		margin-left: 6px;
@@ -89,32 +109,59 @@
 		top: 50%;
 		left: 50%;
 		transform: translate(-50%, -50%);
-		width: 8px;
-		height: 8px;
+		width: 20px;
+		height: 20px;
 		background-color: red;
 		border-radius: 50%;
 	}
 
+	.roundBar {
+		display: inline-flex;
+		gap: 20px; /* 間距可自行調整 */
+		justify-content: center;
+		align-items: center;
+		font-size: 40px;
+	}
+
+	#result {
+		font-size: 24px;
+	
+	}
+	
+	input[type="checkbox"] {
+		transform: scale(2.0);
+		accent-color: #ffcc00; /* 支援的瀏覽器會套用主題色 */
+		vertical-align: 5px; /* 抬高 3px，可微調 */
+	}
+	
+	input[type="radio"] {
+		transform: scale(2.0);
+		accent-color: #ffcc00; /* 支援的瀏覽器會套用主題色 */
+		vertical-align: 5px; /* 抬高 3px，可微調 */
+	}
 
 
   </style>
 </head>
 <body>
-  <h1>三麻點數計算機</h1>
+  <h1 style="font-size:48px;">三麻點數計算機</h1>
 
   <div>
-    <label class="startScore">東家起始分數: <input type="number" id="p0" value="35000"></label><br>
-	<label class="startScore">南家起始分數: <input type="number" id="p1" value="35000"></label><br>
-	<label class="startScore">西家起始分數: <input type="number" id="p2" value="35000"></label><br>
+    <label class="startScore">東家起始分數: <input type="number" id="p0" value="35000"></label>
+	<label class="startScore">南家起始分數: <input type="number" id="p1" value="35000"></label>
+	<label class="startScore">西家起始分數: <input type="number" id="p2" value="35000"></label>
 
-    <button onclick="initGame()">開始遊戲</button>
-    <button onclick="resetGame()">重設遊戲</button>
+    <button class="startBtn" onclick="initGame()">開始遊戲</button>
+    <button class="startBtn" onclick="resetGame()">重設遊戲</button>
   </div>
 
   <div id="gameArea" style="display:none;">
-    <h3 id="roundInfo">東1局</h3>
-    <h3 id="本場"></h3>
-    <h3 id="供托"></h3>
+    <div class="roundBar">
+		<p id="roundInfo">東1局</p>
+		<p id="本場"></p>
+		<p id="供托"></p>
+	</div>
+    
     <div id="tableLayout">
       <div id="east" class="playerBox">
         <div id="player0"></div>
@@ -138,14 +185,14 @@
 		<span id="richiIcon2" class="richiIcon"></span>
       </div>
       <div id="center">
-        <label>得點玩家：
+        <label>
           <select id="winner" onchange="updateRonOptions()">
             <option value="0">東家</option>
             <option value="1">南家</option>
             <option value="2">西家</option>
           </select>
         </label><br>
-        <label>和牌方式：
+        <label>
           <select id="winType" onchange="toggleRonPayer()">
             <option value="tsumo">自摸</option>
             <option value="ron">榮和</option>
@@ -153,7 +200,7 @@
           </select>
         </label><br>
         <div id="ronPayerDiv" style="display: none;">
-          <label>放銃玩家：
+          <label>
             <select id="ronPayer">
               <option value="0">東家</option>
               <option value="1">南家</option>
@@ -161,25 +208,25 @@
             </select>
           </label><br>
         </div>
-        <label>番數：
+        <label>
 			<select id="han">
-				<option value="1">1翻</option>
-				<option value="2">2翻</option>
-				<option value="3">3翻</option>
-				<option value="4">4翻</option>
-				<option value="5">5翻</option>
-				<option value="6">6翻</option>
-				<option value="7">7翻</option>
-				<option value="8">8翻</option>
-				<option value="9">9翻</option>
-				<option value="10">10翻</option>
-				<option value="11">11翻</option>
-				<option value="12">12翻</option>
-				<option value="13">13翻</option>
+				<option value="1">1番</option>
+				<option value="2">2番</option>
+				<option value="3">3番</option>
+				<option value="4">4番</option>
+				<option value="5">5番</option>
+				<option value="6">6番</option>
+				<option value="7">7番</option>
+				<option value="8">8番</option>
+				<option value="9">9番</option>
+				<option value="10">10番</option>
+				<option value="11">11番</option>
+				<option value="12">12番</option>
+				<option value="13">13番</option>
 			</select>
 		</label><br>
 			
-		<label>符數：
+		<label>
 			<select id="fu">
 				<option value="20">20符</option>
 				<option value="25">25符</option>
@@ -195,12 +242,14 @@
 			</select>
 		</label><br>
 
-        <button onclick="calculate()">計算</button>
+        <button class="calcBtn" onclick="calculate()">計算</button>
+		
       </div>
-    </div>
+		<p id="result"></p>
+	
+	</div>
 
-    <h3>結果</h3>
-    <div id="result"></div>
+    
   </div>
 
   <script>
@@ -245,9 +294,9 @@
 
     function updateScores() {
       for (let i = 0; i < 3; i++) {
-        document.getElementById(`player${i}`).innerHTML = `${["東家", "南家", "西家"][i]}<br>分數: ${scores[i]}`;
+        document.getElementById(`player${i}`).innerText = `${["東家", "南家", "西家"][i]} \r 分數： ${scores[i]}`;
       }
-	  document.getElementById("供托").textContent = `供托: ${供托數}`;
+	  document.getElementById("供托").textContent = `供托： ${供托數}`;
     }
 
     function updateRound() {
