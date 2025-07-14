@@ -435,13 +435,17 @@
             if (winType === "none") {
                 const tenpai = [0, 1, 2].filter(i => document.getElementById(`tenpai${i}`).checked);
                 let result = "流局";
-                if (tenpai.length > 0) {
+                if (tenpai.length > 0 && tenpai.length <= 2) {
                     const noten = [0, 1, 2].filter(i => !document.getElementById(`tenpai${i}`).checked);
                     const points = 2000 / tenpai.length;
                     for (let i of tenpai) scores[i] += points;
                     for (let i of noten) scores[i] -= points * (tenpai.length / noten.length);
                     result += `：${tenpai.map(getSeatName).join("、")} 聽牌`;
-                } else {
+                }
+                else if (tenpai.length == 3) {
+                    result += `：${tenpai.map(getSeatName).join("、")} 聽牌`;
+                }
+                else {
                     result += "：無人聽牌";
                 }
 
